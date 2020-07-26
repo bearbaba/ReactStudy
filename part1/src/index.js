@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import UseMap from './components/useMap';
+import axios from 'axios';
+
+const promise = axios.get('http://localhost:3001/notes');
+promise.then(respose=>{
+  const notes = respose.data;
+  console.log(notes);
+})
+
+const promise1 = axios.get('http://localhost:3001/foobar');
+console.log(promise1);
 
 const Hello = ({name, age}) =>(
   <p>Hello World {name} {age}</p>
@@ -40,6 +50,7 @@ const App = () =>{
   const [str, setAll]=useState([]);
   const [num, setNum]=useState(0);
 
+
   const now = new Date();
   const thisYear = now.getFullYear();
   const thisMonth = now.getMonth()+1;
@@ -73,17 +84,30 @@ const App = () =>{
   const lists = [
     {
       id: 0,
-      content: "aaaa"
+      content: "aaaa",
+      import: true
     },
     {
       id: 1,
-      content: "bbbb"
+      content: "bbbb",
+      import: false
     },
     {
       id: 2,
-      content: "cccc"
+      content: "cccc",
+      import: true
     }
   ];
+
+  const [newNote, setNewNote] = useState(
+    "a new note..."
+  );
+
+  // const [notes, setNotes] = useState('');  
+
+  const [showAll, setShowAll]=useState(true);
+
+  const newLists = lists.filter(list=>list.import===true);
 
   const addNote = (event)=>{
     event.preventDefault();
@@ -111,7 +135,7 @@ const App = () =>{
   }
 
   const chageNum=(num1)=>{
-    console.log(num1);
+    // console.log(num1);
     return (
       ()=>{setNum(num+num1);}
     )
@@ -120,6 +144,11 @@ const App = () =>{
   const changeNum=(num2)=>{
     console.log("world");
     setNum(num+num2);
+  }
+
+  const handleNoteChange=(event)=>{
+    console.log(event.target.value);
+    setNewNote(event.target.value);
   }
 
   return (
@@ -155,6 +184,21 @@ const App = () =>{
         <input />
         <button type="submit">submit</button>
       </form>
+
+      <form onSubmit={addNote}>
+        <input value={newNote} onChange={handleNoteChange}/>
+        <button type="submit">addNote</button>
+      </form>
+      
+      <button onClick={()=>{setShowAll(!showAll)}}>{showAll ? "import": "all"}</button>
+
+      <ul>
+      {
+        newLists.map((newList)=>{
+          return (<li key={newList.id}>{newList.content}</li>);
+        })
+      }
+      </ul>
     </div>
 )}
 
