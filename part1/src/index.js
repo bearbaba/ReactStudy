@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
+import UseMap from './components/useMap';
 
 const Hello = ({name, age}) =>(
   <p>Hello World {name} {age}</p>
@@ -37,6 +38,7 @@ const App = () =>{
   const [right, setRight]=useState(0);
   const [boolTrue, setBool]=useState(true);
   const [str, setAll]=useState([]);
+  const [num, setNum]=useState(0);
 
   const now = new Date();
   const thisYear = now.getFullYear();
@@ -46,6 +48,7 @@ const App = () =>{
   const a="hello";
   const b="world";
   const age="12";
+
   const [clicks, setClick]=useState({
     left: 0,
     right: 0
@@ -67,6 +70,25 @@ const App = () =>{
     setClick(newClicks);
   }
 
+  const lists = [
+    {
+      id: 0,
+      content: "aaaa"
+    },
+    {
+      id: 1,
+      content: "bbbb"
+    },
+    {
+      id: 2,
+      content: "cccc"
+    }
+  ];
+
+  const addNote = (event)=>{
+    event.preventDefault();
+    console.log(event.target);
+  }
 
 /*   var counter1=0;
   const getCounter1=(counter)=>{
@@ -87,6 +109,19 @@ const App = () =>{
   const zeroCounter = () => {
     setCounter(0);
   }
+
+  const chageNum=(num1)=>{
+    console.log(num1);
+    return (
+      ()=>{setNum(num+num1);}
+    )
+  }
+
+  const changeNum=(num2)=>{
+    console.log("world");
+    setNum(num+num2);
+  }
+
   return (
     <div>
       <p>{a} {b}</p>
@@ -109,6 +144,17 @@ const App = () =>{
       <p>{str.join(" ")}</p>
       <button onClick={() => {setAll(str.concat("R"))}}>R</button>
       <button onClick={() => {setAll(str.concat("L"))}}>L</button>
+      <p>{num}</p>
+      <button onClick={chageNum(10)}>10</button>
+      <button onClick={() => changeNum(20)}>20</button>      
+      {/*这里有个问题使用这个按钮却会使得上面的按钮被输出一次，尽管上面的按钮并没有产生返回值，但是这还是一个问题。
+      我明白了，原来是页面重新刷新导致的，每次刷新时都会触动 console.log(num1); 因为这个包裹它的函数通过运行的方式将函数作为返回值*/}
+
+      <UseMap lists={lists}/>
+      <form onSubmit={addNote}>
+        <input />
+        <button type="submit">submit</button>
+      </form>
     </div>
 )}
 
