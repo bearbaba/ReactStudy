@@ -1,17 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import axios from 'axios';
+
 import App from './App';
-import * as serviceWorker from './serviceWorker';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+axios
+  .get("http://localhost:3001/notes")
+  .then((response)=>{
+    // console.log(response.data);
+    const props =  response.data;
+    console.log(props);
+    ReactDOM.render( < App />, document.getElementById('root'));
+    //这是个异步方法，会首先执行同步再执行异步，渲染组件的方法是同步的，所以写进了这里
+  })

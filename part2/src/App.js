@@ -1,26 +1,34 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import Note from './components/Note';
+import axios from 'axios';
+import {useState, useEffect} from 'react';
+const App = () => {
+  
+  
+  const [state, setState] = useState([]);
 
-function App() {
+
+
+  useEffect(()=>{
+    axios
+      .get("http://localhost:3001/notes")
+      .then((response)=>{
+        console.log('promise fulfilled');
+        setState(response.data);
+      })
+  }, [])
+  
+  console.log('render', state.length, 'notes');
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <ul>
+        {
+          state.map((note)=> {return (<Note key={note.id} note={note}/>)})
+        }
+      </ul>
     </div>
-  );
+  )
 }
 
 export default App;
