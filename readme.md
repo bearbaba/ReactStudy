@@ -228,6 +228,29 @@ setTimeout(() => {
 
 上述定时器中的`setState(state + 1)`用于更新`state`，需要注意的是更新状态的函数（比如这里的`setState()`）不要直接对状态操作，而是操作状态的副本，更新的内容最终还是会返回给`state`的。
 
-## 熟练掌握
+## 渲染集合到模块学习
 
-如果我们使用一个
+现在我们有一个便笺，我们将从`App`组件外部导入进去，然后分别渲染数组中每个对象里面的不同内容。
+
+```js
+const notes = [
+  {
+    id: 1,
+    content: 'HTML is easy',
+    date: '2019-05-30T17:30:31.098Z',
+    important: true
+  },
+  {
+    id: 2,
+    content: 'Browser can execute only Javascript',
+    date: '2019-05-30T18:39:34.091Z',
+    important: false
+  },
+  {
+    id: 3,
+    content: 'GET and POST are the most important methods of HTTP protocol',
+    date: '2019-05-30T19:20:14.298Z',
+    important: true
+  }
+]
+```
