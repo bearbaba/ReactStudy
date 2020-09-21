@@ -236,21 +236,178 @@ setTimeout(() => {
 const notes = [
   {
     id: 1,
-    content: 'HTML is easy',
-    date: '2019-05-30T17:30:31.098Z',
-    important: true
+    content: "HTML is easy",
+    date: "2019-05-30T17:30:31.098Z",
+    important: true,
   },
   {
     id: 2,
-    content: 'Browser can execute only Javascript',
-    date: '2019-05-30T18:39:34.091Z',
-    important: false
+    content: "Browser can execute only Javascript",
+    date: "2019-05-30T18:39:34.091Z",
+    important: false,
   },
   {
     id: 3,
-    content: 'GET and POST are the most important methods of HTTP protocol',
-    date: '2019-05-30T19:20:14.298Z',
-    important: true
-  }
-]
+    content: "GET and POST are the most important methods of HTTP protocol",
+    date: "2019-05-30T19:20:14.298Z",
+    important: true,
+  },
+];
 ```
+
+整个代码可以写为：
+
+```js
+import React from "react";
+import ReactDOM from "react-dom";
+
+const notes = [
+  {
+    id: 1,
+    content: "HTML is easy",
+    date: "2019-05-30T17:30:31.098Z",
+    important: true,
+  },
+  {
+    id: 2,
+    content: "Browser can execute only Javascript",
+    date: "2019-05-30T18:39:34.091Z",
+    important: false,
+  },
+  {
+    id: 3,
+    content: "GET and POST are the most important methods of HTTP protocol",
+    date: "2019-05-30T19:20:14.298Z",
+    important: true,
+  },
+];
+
+const App = (props) => {
+  const { notes } = props;
+
+  return (
+    <div>
+      {notes.map((prop) => {
+        return <li key={prop.id}>{prop.content}</li>;
+      })}
+    </div>
+  );
+};
+
+ReactDOM.render(<App notes={notes} />, document.getElementById("root"));
+```
+
+这里使用了`map`方法，需要注意的是`map`需要绑定一个唯一的键值`key`，用来确定重新渲染时更新组件的视图。
+
+### 重构模块
+
+我们希望将`ul`中的每一项独立出来作为一个新的组件。
+
+组件通常放在`src`文件夹下的`components`文件夹内。
+
+```js
+import React from "react";
+
+const Note = ({ note }) => {
+  return <li>{note.content}</li>;
+};
+
+export default Note;
+```
+
+这里就是一个名为`Note.js`的组件，它在当前这个组件里无需`render`，所以没有导入`ReactDOM`。
+
+注意这里的`const Note = ({note}) => (<li>{note.content}</li>)`中的解构写法，我们需要注意的是所有从外部导入进来的数据都会被封装进`props`对象中，即使这个外部导入的数据原本就是一个对象了。
+
+这也是为什么之前使用`const {notes} = props`的原因。
+
+那么`index.js`中需要使用外部组件就需要`import`了。
+
+```js
+import Note from "./components/Note";
+```
+
+那么`App`组件中使用`Note`组件就会写为：
+
+```js
+const App = (props) => {
+  const { notes } = props;
+
+  return (
+    <div>
+      {notes.map((note) => {
+        return <Note note={note} key={note.id} />;
+      })}
+    </div>
+  );
+};
+```
+
+### 添加新便笺
+
+现在考虑在增加新便笺时可以实时渲染页面内容，那么这里我们就会使用上`useState`状态管理函数。
+
+```js
+const [notes, setNotes] = useState(props.notes);
+```
+
+很明显，`setNotes`用于更新`notes`状态，`notes`的初值就是`props.notes`。
+
+这里使用一个表单标签用于控制新的便笺内容。
+
+```js
+<form onSubmit={addNote}>
+  <input />
+  <button type="submit">save</button>
+</form>
+```
+
+`onSubmit`函数用于提交时更新整个便笺，在`<input />`内输入新的便笺内容。
+
+在写`addNote`函数时应当考虑如何更新便笺，便笺中不止有`content`属性，因而还需要要考虑如何生成便笺的其它属性值，还应当考虑到如何把输入框的内容保存到`js`内的变量上。
+
+```js
+const addNote = (event) => {
+  event.preventDefault();
+  console.log("button clicked", event.target);
+};
+```
+
+目前的`addNote`函数如上所示，这个函数会在表单提交时被调用，函数调用同时还会生成一个`event`，`event`表示这个表单被提交的事件。
+
+`event.preventDefault()`用于阻止表单被提交时重新渲染整个页面。
+
+`event.target`则会在`addNote`函数被调用时显示表单元素内容。
+
+现在我们解决如何保存输入框内容的问题。
+
+在`input`标签内有一个`value`属性，它会保存输入框的内容，我们只需将我们想要保存的新便笺内容与该属性绑定，输入框的内容自然会成为新便笺的内容。
+
+考虑到需要保存一个新便笺，所以我们需要再使用一个状态管理函数用来管理新便笺的内容状态。
+
+```js
+const [newNote, setNewNote] = useState("a new note...");
+```
+
+`newNote`的初值是`"a new note..."`，它也会作为输入框默认值。
+
+但是仅仅这么做还不足够，我们无法将输入框的内容动态更新成新便笺的内容，好在 React 为输入框提供了一个`onChange`属性，将它与一个方法进行绑定，输入框每次内容动态更新时就会调用被绑定的方法。
+
+```js
+<form onSubmit={addNote}>
+  <input value={newNote} onChange={handleNewNote} />
+  <button type="submit">save</button>
+</form>
+```
+
+现在只需要在`handleNewNote`函数中更新`newNote`状态即可。
+
+```js
+const handleNewNote = (event) => {
+  console.log(event.target.value);
+  setNewNote(event.target.value);
+};
+```
+
+`event.target.value`即每次输入框中动态更新的内容（我们不能使用 HTML 的`value`属性，React 通过操作虚拟 DOM 来操作 HTML）。
+
