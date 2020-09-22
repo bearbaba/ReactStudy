@@ -409,5 +409,55 @@ const handleNewNote = (event) => {
 };
 ```
 
-`event.target.value`即每次输入框中动态更新的内容（我们不能使用 HTML 的`value`属性，React 通过操作虚拟 DOM 来操作 HTML）。
+`event.target.value`即每次输入框中动态更新的内容（我们不能使用 HTML 的`value`属性，通过操作 DOM 来操作 HTML）。
 
+现在我们已经能实时获取新的便笺的`content`了，那么我们需要解决如何保存一个完整的便笺，而不只是它的`content`问题。
+
+```js
+const addNote = (event) => {
+  event.preventDefault();
+  const noteObject = {
+    content: newNote,
+    data: new Date().toISOString(),
+    import: false,
+    id: notes.length + 1,
+  };
+
+  setNotes(notes.concat(noteObject));
+  setNewNote("");
+
+  console.log(notes);
+};
+```
+
+`noteObject`即补充完整了便笺对象的全部内容。`content`的值即我们能动态获取的`newNote`，`data`是使用`new Date()`的实例化生成的。`id`的值即便笺列表中的个数。
+
+`setNotes`用于保存便笺对象，每次保存完毕后，`setNewNote("")`将输入框的内容区给置空。
+
+### 手动控制便笺的显示隐藏
+
+现在我们再添加一个功能，即添加一个按钮，按钮点击时隐藏便笺对象中`important`值为`false`的对象。
+
+```js
+const [showAll, setShowAll] = useState(true);
+```
+
+现在多添加了一个对按钮进行状态管理的状态函数，按钮默认为`true`时，就会全部显示便笺内容，而按钮为`false`时，隐藏`important`值为`false`的便笺。
+
+```js
+const notesToShow = showAll
+  ? notes
+  : notes.filter((note) => note.important === true);
+```
+
+当`showAll`可以被控制布尔值时，我们就需要考虑怎样让它为`true`时显示全部便笺，而为`false`时隐藏`important`值为`false`的便笺。上述使用了一个非常巧妙的三目运算符。`showAll`为`false`时就会让`notes`过滤出`note.important !== true`的`note。
+
+那么最后只需要在添加一个按钮，让这个按钮能够控制`showAll`的布尔值即可。
+
+```js
+<div>
+  <button onClick={() => setShowAll(!showAll)}>
+    show {showAll ? "all" : "important"}
+  </button>
+</div>
+```
