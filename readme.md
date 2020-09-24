@@ -461,3 +461,89 @@ const notesToShow = showAll
   </button>
 </div>
 ```
+
+## 从服务器获取数据
+
+现在我们希望数据能够存储在后端，并且能从后端获取，此时我们可以使用一个`json-server`工具作为我们的服务器。
+
+首先把一个便笺内容保存为项目根目录下的`db.json`。
+
+```json
+{
+  "notes": [
+    {
+      "id": 1,
+      "content": "HTML is easy",
+      "date": "2019-05-30T17:30:31.098Z",
+      "important": true
+    },
+    {
+      "id": 2,
+      "content": "Browser can execute only JavaScript",
+      "date": "2019-05-30T18:39:34.091Z",
+      "important": false
+    },
+    {
+      "id": 3,
+      "content": "GET and POST are the most important methods of HTTP protocol",
+      "date": "2019-05-30T19:20:14.298Z",
+      "important": true
+    }
+  ]
+}
+```
+
+先使用`yarn`全局安装`json-server`，命令为：
+
+```shell
+yarn global add json-server
+```
+
+安装完之后，可以使用如下命令运行`json-server`:
+
+```shell
+json-server --port 3001 --watch db.json
+```
+
+这里将端口设置为3001端口，在浏览器地址栏输入`http://localhost:3001`能访问到这个 json 文件，地址后再加`/notes`就是整个便笺列表的内容了。
+
+这里涉及到了文件请求，前端凡是涉及到请求一类的，绕不过的便是异步请求方法，原生 JS 使用的是 XHR 请求方法，现在我们可以使用一个封装好的`axios`库。
+
+使用`yarn`安装这个`axios`库。
+
+```shell
+yarn add axios
+```
+
+首先在`index.js`中尝试使用这个库，
+
+```js
+import axios from 'axios'
+
+const promise1 = axios.get("http://localhost:3001/notes")
+console.log(promise1)
+
+const promise2 = axios.get("http://localhost:3001/foorbar")
+console.log(promise2)
+```
+
+这里使用的是一个异步请求的方法，我们向`http://localhost:3001/notes`与`http://localhost:3001/foorbar`发送了请求，虽然两个输出语句都能打印出来，但是在第二个网址输出时会报错，因为并不存在`/foorbar`。
+
+实际上`get()`方法返回的是一个`promise`对象，这个对象具有三种状态：
+
+1. The promise is pending提交中: 这意味着最终值(下面两个中的一个)还不可用。
+2. The promise is fulfilled兑现: 这意味着操作已经完成，最终的值是可用的，这通常是一个成功的操作。 这种状态有时也被称为resolve。
+3. The promise is rejected拒绝:它意味着一个错误阻止了最终值，这通常表示一个失败操作。
+
+对于`promise1`而言显然它对应着操作已经完成，即状态2，如果需要进行下一步处理就需要使用到`then()`方法。
+
+```js
+promise1.then(response => {
+  console.log(response.data)
+})
+```
+
+`then`方法中注册一个回调函数，在请求操作成功完成时就会调用这个回调函数。
+
+`response`对象包含与 HTTP GET 请求响应相关的所有基本数据，也包括返回的`data`、`status code`和`headers`。
+
