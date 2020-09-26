@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, {useEffect,  useState } from 'react'
 import ReactDOM from 'react-dom'
 
 import axios from 'axios'
@@ -27,13 +27,16 @@ const App = () => {
 
   const addNote = () => {
     const noteObject = {
-      id: notes.length + 1,
       data: new Date().toISOString(),
       content: newNote,
       important: false
     }
 
-    setNotes(notes.concat(noteObject))
+    axios
+      .post("http://localhost:3001/notes",noteObject)
+      .then((res) => {
+        console.log(res)
+      })
     setNewNote("")
   }
 
