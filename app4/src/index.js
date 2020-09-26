@@ -37,6 +37,7 @@ const App = () => {
       .then((res) => {
         console.log(res)
       })
+    setNotes(notes.concat(noteObject))
     setNewNote("")
   }
 

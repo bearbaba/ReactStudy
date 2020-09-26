@@ -568,4 +568,26 @@ useEffect(() => {
 
 ### 上传到服务器
 
+我们可以使用`post`方法将数据上传到数据库内。
+
+```js
+  const addNote = () => {
+    const noteObject = {
+      data: new Date().toISOString(),
+      content: newNote,
+      important: false
+    }
+
+    axios
+      .post("http://localhost:3001/notes",noteObject)
+      .then((res) => {
+        console.log(res)
+      })
+    setNotes(notes.concat(noteObject))
+    setNewNote("")
+  }
+```
+
+这里的`noteObject`我们并没有设置`id`，而是在上传数据库时自动生成`id`，同样在上传数据后我们需要使用`setNotes(notes.concat(noteObject))`来更新`notes`，同时也需要将输入框给置空。
+
 
