@@ -571,23 +571,64 @@ useEffect(() => {
 我们可以使用`post`方法将数据上传到数据库内。
 
 ```js
-  const addNote = () => {
-    const noteObject = {
-      data: new Date().toISOString(),
-      content: newNote,
-      important: false
-    }
+const addNote = () => {
+  const noteObject = {
+    data: new Date().toISOString(),
+    content: newNote,
+    important: false,
+  };
 
-    axios
-      .post("http://localhost:3001/notes",noteObject)
-      .then((res) => {
-        console.log(res)
-      })
-    setNotes(notes.concat(noteObject))
-    setNewNote("")
-  }
+  axios.post("http://localhost:3001/notes", noteObject).then((res) => {
+    console.log(res);
+  });
+  setNotes(notes.concat(noteObject));
+  setNewNote("");
+};
 ```
 
 这里的`noteObject`我们并没有设置`id`，而是在上传数据库时自动生成`id`，同样在上传数据后我们需要使用`setNotes(notes.concat(noteObject))`来更新`notes`，同时也需要将输入框给置空。
+
+### 改变便笺的 important 值
+
+让我们为每个便笺添加一个按钮，用于切换它的重要性。
+
+现在为`Note.js`增加点内容，
+
+```js
+import React from "react";
+
+const Note = ({ note, togglImportance }) => {
+  const label = note.important ? "make not important" : "make important";
+  return (
+    <>
+      <li>{note.content}</li>
+      <button onClick={togglImportance}>{label}</button>
+    </>
+  );
+};
+
+export default Note;
+```
+
+这里的`toggleImportance`是外部导入进来的函数，用于之后改变便笺的`important`，目前只需要输出便笺的`id`值即可。
+
+```js
+const toggleImportantce = (id) => {
+  console.log(`importance of ${id} needs to be toggled`);
+};
+```
+
+`App.js`中的便笺组件就会被写成：
+
+```js
+<Note
+  note={note}
+  key={note.id}
+  togglImportance={() => toggleImportantce(note.id)}
+/>
+```
+
+我们现在只需要专注于`toggleImportantce`函数即可，它需要将改变了`important`值的新`note`上传到数据库，并更新`notes`。
+
 
 

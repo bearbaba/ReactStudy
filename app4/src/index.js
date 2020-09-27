@@ -1,4 +1,4 @@
-import React, {useEffect,  useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
 
 import axios from 'axios'
@@ -33,7 +33,7 @@ const App = () => {
     }
 
     axios
-      .post("http://localhost:3001/notes",noteObject)
+      .post("http://localhost:3001/notes", noteObject)
       .then((res) => {
         console.log(res)
       })
@@ -46,15 +46,28 @@ const App = () => {
     setNewNote(event.target.value)
   }
 
+  const toggleImportance = (id) => {
+    const url = `http://localhost:3001/notes/${id}`
+    const note = notes.find(n => n.id === id)
+    const changedNote = { ...note, important: !note.important }
 
+    axios
+      .put(url, changedNote)
+      .then(res => { setNotes(notes.map(note => note.id !== id ? note : res.data)) })
+
+    console.log(`importance of ${id} needs to be toggled`)
+  }
 
   return (
     <div>
       <ul>
         {
-          notesToShow.map(note => {
+          notesToShow.map((note, i)=> {
             return (
-              <Note note={note} key={note.id} />
+              <Note
+                note={note}
+                key={i}
+                toggleImportance={() => toggleImportance(note.id)} />
             )
           })
         }
