@@ -746,17 +746,210 @@ axios
 也可以使用内联样式，直接将 CSS 写成 JS 对象的形式，再通过`style`属性来绑定相应样式。
 
 ```js
-  const titleStyle = {
-    color: "red",
-    fontFamily: "Arial"
-  }
+const titleStyle = {
+  color: "red",
+  fontFamily: "Arial",
+};
 
-  //...
-  return (
-    <h1 style={titleStyle}>Hello React</h1>
-  )
+//...
+return <h1 style={titleStyle}>Hello React</h1>;
 ```
 
 可以看到这种写法是不同于原生 CSS 样式的写法的。
 
+## Node.js 与 Express
 
+本节内容我们将集中于后端的处理上，在本节中，我们不使用`create-react-app`创建 React 项目，而是进行手动配置。
+
+我们仍然使用`yarn`作为项目的包管理工具，我们首先创建名为`app5`的项目文件夹，使用`cd ./app5`进入到该文件夹内，然后使用`yarn init`为项目应用创建一个模板，模板文件是`package.json`。
+
+在之前的内容中，我们已浅略了解了`json`文件的书写格式，在`package.json`文件内增加以下内容：
+
+```json
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \" Error: no test specified \" && exit 1"
+  }
+```
+
+`"scripts"`配置了项目的命令，我们可以使用`yarn start`来启动我们的项目文件。`"test"`命令暂且未配置相关程序，使用它，会输出 echo Error: no test specified && exit 1 。、
+
+### 创建一个简易的服务器
+
+在该项目根目录下创建`index.js`文件，把这个文件改写成简易的服务器内容：
+
+```js
+const http = require("http");
+
+const app = http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("Hello World");
+});
+
+const PORT = 3001;
+app.listen(PORT);
+console.log(`Server running on port ${PORT}`);
+```
+
+执行`yarn start`会输出 Server running on port 3001 。
+
+这里使用的是 3001 端口，如果该端口被其它程序占用就会发生错误。
+
+```js
+const http = require("http");
+```
+
+这里使用的是 Node 内的`http`模块，导入`http`模块使用的 Node 中的 CommonJS 语法。
+
+下述代码创建了一个服务器：
+
+```js
+const app = http.createServer((request, response) => {
+  response.writeHead(200, { "Content-Type": "text/plain" });
+  response.end("Hello World");
+});
+```
+
+响应请求的状态代码为 200，Content-Type 头文件设置为 text/plain，将返回站点的内容设置为 Hello World。
+
+我们也可以使用之前的`Notes` JSON 数据作为返回站点的内容，
+
+```js
+const http = require("http");
+
+let notes = [
+  {
+    id: 1,
+    content: "HTML is easy",
+    date: "2019-05-30T17:30:31.098Z",
+    important: true,
+  },
+  {
+    id: 2,
+    content: "Browser can execute only Javascript",
+    date: "2019-05-30T18:39:34.091Z",
+    important: false,
+  },
+  {
+    id: 3,
+    content: "GET and POST are the most important methods of HTTP protocol",
+    date: "2019-05-30T19:20:14.298Z",
+    important: true,
+  },
+];
+const app = http.createServer((request, response) => {
+  response.writeHead(200, { "Content-Type": "application/json" });
+  response.end(JSON.stringify(notes));
+});
+
+const PORT = 3001;
+app.listen(PORT);
+console.log(`Server running on port ${PORT}`);
+```
+
+`notes`数组的内容将被返回为 JSON ，在浏览器内容打开 http://localhost:3001 将会得到我们想要的内容。
+
+### Express
+
+使用`http`模块创建服务器毕竟有点繁琐了，我们将使用`express`库来创建我们的文件。
+
+首先需要使用`yarn add`来安装我们需要的库。
+
+```shell
+yarn add express
+```
+
+该依赖项会被添加`package.json`内，
+
+```json
+"dependencies": {
+  "express": "^4.17.1"
+}
+```
+
+### Web and Express
+
+我们现在改写`index.js`的内容，
+
+```js
+const express = require("express")
+const app = express()
+
+let notes = [
+  {
+    id: 1,
+    content: "HTML is easy",
+    date: "2019-05-30T17:30:31.098Z",
+    important: true
+  },
+  {
+    id: 2,
+    content: "Browser can execute only Javascript",
+    date: "2019-05-30T18:39:34.091Z",
+    important: false
+  },
+  {
+    id: 3,
+    content: "GET and POST are the most important methods of HTTP protocol",
+    date: "2019-05-30T19:20:14.298Z",
+    important: true
+  }
+]
+
+app.get('/', (req, res) => {
+  res.send('<h1>Hello World!</h1>')
+})
+
+app.get('/api/notes', (req, res) => {
+  res.json(notes)
+})
+
+const PORT = 3001
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})
+```
+
+在这里我们又再一次地创建了一个服务器，不过这里我们使用的是`express`。我们导入`express`，然后又作为变量传递给了`app`，用于创建一个`express`应用。
+
+然后我们又定义了两个路由，第一个定义了一个事件处理，用于处理对应用的根`/`的 get 请求。
+
+```js
+app.get('/', (req, res) => {
+  res.send('<h1>Hello World!</h1>')
+})
+```
+
+事件处理接受两个参数。 第一个`request`参数包含 HTTP 请求的所有信息，第二个`response`参数用于定义请求的响应方式。在这里响应请求使用`res.send`方法，该方法会在根页面显示标签内容。由于`send()`方法的参数是字符串，所以 express 会自动将 Content-Type 头的值设置为 text/html，响应的状态代码默认为200。
+
+```js
+app.get('/api/notes', (req, res) => {
+  res.json(notes)
+})
+```
+
+上述代码则是对`http://localhost:3001`下的`/api/notes`请求的响应，它会用`json`方法将`notes`数组作为一个 JSON 格式的字符串进行传递。Express 自动设置Content-Type 头文件，其值为 application/json。
+
+### nodemon
+
+目前为止，我们如果对代码进行修改更新后，不能不停止服务器运行，然后重新启动才能看到更新的内容。解决这个问题就是使用 nodemon 。
+
+nodemon 将监视启动 nodemon 的目录中的文件，如果任何文件发生更改，nodemon 将自动重启节点应用。
+
+然后在`package.json`下的`"scripts"`中配置 nodemon 的相关命令。
+
+```json
+"scripts": {
+  "start": "node index.js",
+  "test": "echo \" Error: no test specified \" && exit 1",
+  "dev": "nodemon index.js"
+}
+```
+
+然后我们就可以用如下命令启动服务器：
+
+```shell
+yarn run dev
+```
+
+这里需要用上`run`指令。
