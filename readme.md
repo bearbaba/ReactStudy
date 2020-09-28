@@ -630,5 +630,133 @@ const toggleImportantce = (id) => {
 
 我们现在只需要专注于`toggleImportantce`函数即可，它需要将改变了`important`值的新`note`上传到数据库，并更新`notes`。
 
+```js
+const toggleImportance = (id) => {
+  const url = `http://localhost:3001/notes/${id}`;
+  const note = notes.find((n) => n.id === id);
+  const changedNote = { ...note, important: !note.important };
+
+  axios.put(url, changedNote).then((res) => {
+    setNotes(notes.map((note) => (note.id !== id ? note : res.data)));
+  });
+
+  console.log(`importance of ${id} needs to be toggled`);
+};
+```
+
+这里使用了`axios`的`put`方法用于把部分修改了的内容上传至数据库内。`url`是由点击按钮时传递进来的`note.id`属性值决定的，它的内容实际上是相应`id`值的`note`对象，在使用`put`方法后，它会被`put`请求的第二个参数所替换。`put`请求结束后我们需要使用`setNotes`来更新`notes`内容，这里非常巧妙地使用了`map`方法，用于把`notes`列表中的部分内容给替换掉。
+
+### 将与后端通信的内容封装进单独文件
+
+本着单一职责原则，我们最好将与后端通信的代码单独封装进相应文件。
+
+创建一个`src\services`文件夹，在该文件夹下创建一个`notes.js`文件。
+
+```js
+import axios from "axios";
+
+const baseUrl = "http://localhost:3001/notes";
+
+const getAll = () => {
+  return axios.get(baseUrl);
+};
+
+const create = (noteObject) => {
+  return axios.post(baseUrl, noteObject);
+};
+
+const update = (id, changedNote) => {
+  return axios.put(`${baseUrl}/${id}`, changedNote);
+};
+
+export default {
+  getAll,
+  update,
+  create,
+};
+```
+
+在`index.js`中使用时，可以以`import noteServers from './services/notes'`的方式导入，然后通过调用对象方法的方式来使用`axios`中的各个方法。例：
+
+```js
+useEffect(() => {
+  noteServers.getAll().then((res) => {
+    console.log(res.data);
+    setNotes(res.data);
+  });
+}, []);
+```
+
+还可以更进一步，把`then()`方法作为返回值，在使用时再根据情况添加`then()`方法，`then`方法也会返回一个`promise`对象。
+
+```js
+import axios from "axios";
+
+const baseUrl = "http://localhost:3001/notes";
+
+const getAll = () => {
+  return axios.get(baseUrl).then((res) => res.data);
+};
+
+const create = (noteObject) => {
+  return axios.post(baseUrl, noteObject).then((res) => res.data);
+};
+
+const update = (id, changedNote) => {
+  return axios.put(`${baseUrl}/${id}`, changedNote).then((res) => res.data);
+};
+
+export default {
+  getAll,
+  update,
+  create,
+};
+```
+
+使用过程，例：
+
+```js
+noteServers.update(id, changedNote).then((initialNote) => {
+  setNotes(notes.map((note) => (note.id !== id ? note : initialNote)));
+});
+```
+
+### 对错误处理
+
+我们之前说了`promise`含有三种状态，其中一种是拒绝状态，即我们对服务器的请求发生错误时。
+
+对错误的错误是一个`catch`方法，使用`catch`与使用`then`方法的过程是一致的。例：
+
+```js
+axios
+  .put(`${baseUrl}/${id}`, newObject)
+  .then((response) => response.data)
+  .then((changedNote) => {
+    // ...
+  })
+  .catch((error) => {
+    console.log("fail");
+  });
+```
+
+## 在 React 中使用 CSS
+
+我们可以将 CSS 写进`src\index.css`中，通过`import "./index.css`来导入 CSS 样式，需要注意的是在 React 中，`class`属性要写成`className`。
+
+也可以使用内联样式，直接将 CSS 写成 JS 对象的形式，再通过`style`属性来绑定相应样式。
+
+```js
+  const titleStyle = {
+    color: "red",
+    fontFamily: "Arial"
+  }
+
+  //...
+  return (
+    <h1 style={titleStyle}>Hello React</h1>
+  )
+```
+
+可以看到这种写法是不同于原生 CSS 样式的写法的。
 
 
