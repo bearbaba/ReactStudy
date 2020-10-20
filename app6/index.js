@@ -34,3 +34,29 @@ const PORT = 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
+
+app.get('/api/notes/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const newNotes = notes.find(note => note.id == id)
+  if (newNotes) {
+    res.json(newNotes)
+  } else {
+    res.status(404).end()
+  }
+})
+
+app.delete('/api/notes/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const deletedNote = notes.filter(note => note.id !== id)
+  if (deletedNote){
+    res.status(204).end()
+  }
+})
+
+app.use(express.json())
+
+app.post("/api/notes", (req, res)=>{
+  const note = req.body
+  console.log(note)
+  res.json(note)
+})
