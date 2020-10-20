@@ -3,14 +3,11 @@ import ReactDOM from 'react-dom'
 
 import './index.css'
 
-// import axios from 'axios'
 
 import Note from './components/Note'
 
 import noteServers from './services/notes'
 
-/* const promise2 = axios.get("http://localhost:3001/foorbar")
-console.log(promise2) */
 
 const App = () => {
 
@@ -51,7 +48,7 @@ const App = () => {
   }
 
   const toggleImportance = (id) => {
-    // const url = `http://localhost:3001/notes/${id}`
+    
     const note = notes.find(n => n.id === id)
     const changedNote = { ...note, important: !note.important }
 
